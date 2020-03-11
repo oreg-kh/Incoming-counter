@@ -1,6 +1,7 @@
 javascript: 
 var array = [];
 var k = 0;
+var coord = document.URL.split("#")[1].replace(";","|");
 var support = {
         spear: 0,
         sword: 0,
@@ -108,32 +109,32 @@ async function createTextarea() {
     return $(selector).after(content);
 }
 
-async function getIDs() {
-    var end = false;
-    console.log("siker");
-    if (k == 0) {
-        await createDuration();
-        k++;
-    }
+function clearThings() {
     array = [];
     $(".response").remove();
     $("textarea#scriptused_text0").remove();
     $("textarea#scriptused_text1").remove();
     $("textarea#scriptused_text2").remove();
+}
+
+async function getIDs() {
+    var end = false;
     var row = $(".command-row").length;
+    if (k == 0) {
+        await createDuration();
+        k++;
+    }
+    clearThings();
     for (var i = 0; i < row; i++) {
         var id = $(".command-row").eq(i).find(".quickedit").attr("data-id");
         var time = $(".command-row").eq(i).find("td").last().text().split(":");
-        console.log(time);
         var timeToSeconds = Number(time[0]) * 3600 +  Number(time[1]) * 60 +  Number(time[2]);
         var splittedOwnTime = $("#duration").val().split(":");
         var ownTimeToSecond = Number(splittedOwnTime[0]) * 3600 +  Number(splittedOwnTime[1]) * 60 +  Number(splittedOwnTime[2]);
-        console.log(timeToSeconds, ownTimeToSecond);
         if (timeToSeconds < ownTimeToSecond) {
             array.push(id);
         }
     }
-    console.log(array);
     request(0);
 }
 
@@ -180,7 +181,6 @@ async function process() {
                 cancel[key] += Number(user.units[key].count);
             }
         }
-        console.log(support);
     });
     fillTextarea();
 }
@@ -188,14 +188,15 @@ async function process() {
 async function fillTextarea() {
     await createTextarea();
     $.each(unit, function(k, v) {
-        $("textarea#scriptused_text0").val($("textarea#scriptused_text0").val() + egyseg[k] + ": " + support[v] + "\n");
-    });
-    $.each(unit, function(k, v) {
-        $("textarea#scriptused_text1").val($("textarea#scriptused_text1").val() + egyseg[k] + ": " + attack[v] + "\n");
-    });
-    $.each(unit, function(k, v) {
-        $("textarea#scriptused_text2").val($("textarea#scriptused_text2").val() + egyseg[k] + ": " + cancel[v] + "\n");
-    });
+        if (k == unit.length - 1) {
+            village = "Ide: " + coord;
+        } else {
+            village = "";
+        }
+        $("#scriptused_text0").val($("#scriptused_text0").val() + egyseg[k] + ": " + support[v] + "\n" + village);
+        $("#scriptused_text1").val($("#scriptused_text1").val() + egyseg[k] + ": " + attack[v] + "\n" + village);
+        $("#scriptused_text2").val($("#scriptused_text2").val() + egyseg[k] + ": " + cancel[v] + "\n" + village);
+    })
     end = true;
 }
 getIDs();
