@@ -1,0 +1,150 @@
+javascript: 
+var array = [];
+var support = {
+        spear: 0,
+        sword: 0,
+        axe: 0,
+        spy: 0,
+        archer: 0,
+        light: 0,
+        marcher: 0,
+        heavy: 0,
+        ram: 0,
+        catapult: 0,
+        knight: 0,
+        snob: 0
+};
+var attack = {
+        spear: 0,
+        sword: 0,
+        axe: 0,
+        spy: 0,
+        archer: 0,
+        light: 0,
+        marcher: 0,
+        heavy: 0,
+        ram: 0,
+        catapult: 0,
+        knight: 0,
+        snob: 0
+};
+var cancel = {
+        spear: 0,
+        sword: 0,
+        axe: 0,
+        spy: 0,
+        archer: 0,
+        light: 0,
+        marcher: 0,
+        heavy: 0,
+        ram: 0,
+        catapult: 0,
+        knight: 0,
+        snob: 0
+};
+var egyseg = ["Lándzsás",
+        "Kardos",
+        "Bárdos",
+        "Kém",
+        "Íjász",
+        "Könnyűlovas",
+        "Lovasíjász",
+        "Nehézlovas",
+        "Faltörő kos",
+        "Katapult",
+        "Lovag",
+        "Nemes"
+];
+var unit = ["spear",
+        "sword",
+        "axe",
+        "spy",
+        "archer",
+        "light",
+        "marcher",
+        "heavy",
+        "ram",
+        "catapult",
+        "knight",
+        "snob"
+];
+var content = `
+    <textarea id="scriptused_text0" cols="23" rows="15">Erősítés:&#13;&#10;&#13;&#10;</textarea>
+    <textarea id="scriptused_text1" cols="23" rows="15">Támadás:&#13;&#10;&#13;&#10;</textarea>
+    <textarea id="scriptused_text2" cols="23" rows="15">Visszatérő:&#13;&#10;&#13;&#10;</textarea>
+`;
+
+function interface() {
+    if ($("#mobileHeader").is(":visible")) {
+        return "#mobileHeader";
+    } else {
+        return "h2:eq(0)";
+    }
+}
+
+async function createTextarea() {
+    var selector = await interface();
+    return $(selector).after(content);
+}
+
+function getIDs() {
+    var row = $(".command-row").length;
+    for (var i = 0; i < row; i++) {
+        var id = $(".command-row").eq(i).find(".quickedit").attr("data-id");
+        array.push(id);
+    }
+    request(0);
+}
+
+function request(i) {
+    if (i < array.length) {
+        $.ajax({
+            url: "https://" + location.host + game_data.link_base_pure + "info_command&ajax=details&id=" + array[i],
+            async: true,
+            success: function(data) {
+                if (data != '{"no_authorization":true}') {
+                    $("body").append('<div class="response">' + data + '</div>');
+                    $(".response").hide();
+                }
+                setTimeout(function() {
+                    request(i + 1);
+                }, 1);
+            }
+        })
+    } else {
+        process();
+    }
+}
+
+function process() {
+    $(".response").each(function(k, v) {
+        var user = JSON.parse($(v).html());
+        var key;
+        for (key in user.units) {
+            if (user.type == "support") {
+                support[key] += Number(user.units[key].count);
+            } else if (user.type == "attack") {
+                attack[key] += Number(user.units[key].count);
+            } else if (user.type == "back" || user.type == "other_back" || user.type == "return") {
+                cancel[key] += Number(user.units[key].count);
+            }
+        }
+    });
+    fillTextarea();
+}
+
+async function fillTextarea() {
+    await createTextarea();
+    $.each(unit, function(k, v) {
+        $("textarea#scriptused_text0").val($("textarea#scriptused_text0").val() + egyseg[k] + ": " + support[v] + "\n");
+    });
+    $.each(unit, function(k, v) {
+        $("textarea#scriptused_text1").val($("textarea#scriptused_text1").val() + egyseg[k] + ": " + attack[v] + "\n");
+    });
+    $.each(unit, function(k, v) {
+        $("textarea#scriptused_text2").val($("textarea#scriptused_text2").val() + egyseg[k] + ": " + cancel[v] + "\n");
+    });
+}
+
+getIDs();
+void(0);
