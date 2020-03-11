@@ -80,7 +80,7 @@ var durationContent = `
     <tr>
         <td>Időtartam:</td>
         <td>
-            <input type="text" id="duration" value="24:00:00" placeholder="óó:pp:mp" required pattern="${durationPattern}" onkeyup="run()">
+            <input type="text" id="duration" value="24:00:00" placeholder="óó:pp:mp" onkeyup="run()">
         </td>
     </tr>
 `;
