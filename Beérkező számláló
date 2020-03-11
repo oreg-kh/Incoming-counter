@@ -1,5 +1,6 @@
 javascript: 
 var array = [];
+var k = 0;
 var support = {
         spear: 0,
         sword: 0,
@@ -68,11 +69,24 @@ var unit = ["spear",
         "knight",
         "snob"
 ];
+let durationPattern = "\\d+:\\d{2}";
 var content = `
     <textarea id="scriptused_text0" cols="23" rows="15">Erősítés:&#13;&#10;&#13;&#10;</textarea>
     <textarea id="scriptused_text1" cols="23" rows="15">Támadás:&#13;&#10;&#13;&#10;</textarea>
     <textarea id="scriptused_text2" cols="23" rows="15">Visszatérő:&#13;&#10;&#13;&#10;</textarea>
 `;
+var durationContent = `
+    <tr>
+        <td>Időtartam:</td>
+        <td>
+            <input type="text" id="duration" value="24:00:00" placeholder="óó:pp:mp" required pattern="${durationPattern}" onkeyup="getIDs()">
+        </td>
+    </tr>
+`;
+
+function createDuration() {
+    return $("#content_value").find("table").eq(1).find("tr").eq(1).after(durationContent);
+}
 
 function interface() {
     if ($("#mobileHeader").is(":visible")) {
@@ -87,12 +101,35 @@ async function createTextarea() {
     return $(selector).after(content);
 }
 
-function getIDs() {
+function removeTextarea() {
+    $(".response").remove();
+    $("textarea#scriptused_text0").remove();
+    $("textarea#scriptused_text1").remove();
+    $("textarea#scriptused_text2").remove();
+    array = [];
+}
+
+async function getIDs() {
+    console.log("siker");
+    if (k == 0) {
+        await createDuration();
+        k++;
+    }
+    removeTextarea();
     var row = $(".command-row").length;
     for (var i = 0; i < row; i++) {
         var id = $(".command-row").eq(i).find(".quickedit").attr("data-id");
-        array.push(id);
+        var time = $(".command-row").eq(i).find("td").last().text().split(":");
+        console.log(time);
+        var timeToSeconds = Number(time[0]) * 3600 +  Number(time[1]) * 60 +  Number(time[2]);
+        var splittedOwnTime = $("#duration").val().split(":");
+        var ownTimeToSecond = Number(splittedOwnTime[0]) * 3600 +  Number(splittedOwnTime[1]) * 60 +  Number(splittedOwnTime[2]);
+        console.log(timeToSeconds, ownTimeToSecond);
+        if (timeToSeconds < ownTimeToSecond) {
+            array.push(id);
+        }
     }
+    console.log(array);
     request(0);
 }
 
@@ -116,11 +153,21 @@ function request(i) {
     }
 }
 
-function process() {
+function resetObjects() {
+    for (const key in support) {
+        support[key] = 0;
+        attack[key] = 0;
+        cancel[key] = 0;
+    }
+    return true;
+}
+
+async function process() {
+    await resetObjects();
     $(".response").each(function(k, v) {
         var user = JSON.parse($(v).html());
-        var key;
-        for (key in user.units) {
+        // store in objects
+        for (const key in user.units) {
             if (user.type == "support") {
                 support[key] += Number(user.units[key].count);
             } else if (user.type == "attack") {
@@ -129,6 +176,7 @@ function process() {
                 cancel[key] += Number(user.units[key].count);
             }
         }
+        console.log(support);
     });
     fillTextarea();
 }
@@ -145,6 +193,5 @@ async function fillTextarea() {
         $("textarea#scriptused_text2").val($("textarea#scriptused_text2").val() + egyseg[k] + ": " + cancel[v] + "\n");
     });
 }
-
 getIDs();
 void(0);
