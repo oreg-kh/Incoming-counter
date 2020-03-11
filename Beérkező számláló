@@ -79,10 +79,17 @@ var durationContent = `
     <tr>
         <td>Időtartam:</td>
         <td>
-            <input type="text" id="duration" value="24:00:00" placeholder="óó:pp:mp" required pattern="${durationPattern}" onkeyup="getIDs()">
+            <input type="text" id="duration" value="24:00:00" placeholder="óó:pp:mp" required pattern="${durationPattern}" onkeyup="run()">
         </td>
     </tr>
 `;
+
+function run() {
+    if (end == true) {
+        getIDs();
+        end = false;
+    }
+}
 
 function createDuration() {
     return $("#content_value").find("table").eq(1).find("tr").eq(1).after(durationContent);
@@ -101,21 +108,18 @@ async function createTextarea() {
     return $(selector).after(content);
 }
 
-function removeTextarea() {
-    $(".response").remove();
-    $("textarea#scriptused_text0").remove();
-    $("textarea#scriptused_text1").remove();
-    $("textarea#scriptused_text2").remove();
-    array = [];
-}
-
 async function getIDs() {
+    var end = false;
     console.log("siker");
     if (k == 0) {
         await createDuration();
         k++;
     }
-    removeTextarea();
+    array = [];
+    $(".response").remove();
+    $("textarea#scriptused_text0").remove();
+    $("textarea#scriptused_text1").remove();
+    $("textarea#scriptused_text2").remove();
     var row = $(".command-row").length;
     for (var i = 0; i < row; i++) {
         var id = $(".command-row").eq(i).find(".quickedit").attr("data-id");
@@ -192,6 +196,7 @@ async function fillTextarea() {
     $.each(unit, function(k, v) {
         $("textarea#scriptused_text2").val($("textarea#scriptused_text2").val() + egyseg[k] + ": " + cancel[v] + "\n");
     });
+    end = true;
 }
 getIDs();
 void(0);
