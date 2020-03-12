@@ -85,7 +85,6 @@ var unit = ["spear",
         "knight",
         "snob"
 ];
-let durationPattern = "\\d+:\\d{2}";
 var content = `
     <textarea id="scriptused_text0" cols="23" rows="15">Erősítés:&#13;&#10;&#13;&#10;</textarea>
     <textarea id="scriptused_text1" cols="23" rows="15">Támadás:&#13;&#10;&#13;&#10;</textarea>
