@@ -8,7 +8,7 @@ var player = game_data.player.name;
 var world = game_data.world;
 let script = {
     name: "Incoming counter",
-    version: "v1.0"
+    version: "v1.1"
 }
 let issue = {
     text: ["|Player|World|Script name|Script version|",
@@ -140,7 +140,7 @@ async function getIDs() {
     }
     clearThings();
     for (var i = 0; i < row; i++) {
-        var id = $(".command-row").eq(i).find(".quickedit").attr("data-id");
+        var id = $(".icon-container").eq(i).find(".command_hover_details").eq(0).attr("data-command-id");
         var time = $(".command-row").eq(i).find("td").last().text().split(":");
         var timeToSeconds = Number(time[0]) * 3600 +  Number(time[1]) * 60 +  Number(time[2]);
         var splittedOwnTime = $("#duration").val().split(":");
